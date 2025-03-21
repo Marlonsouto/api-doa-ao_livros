@@ -1,9 +1,7 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 import sqlite3 
 
 app = Flask(__name__)
-
-
 
 
 @app.route("/")
@@ -28,13 +26,49 @@ init_db()
 
 @app.route("/doar", method=["POST"])
 def doar_livro():
+    dados = request.get_json()
     
+    titulo = dados.get("titulo")
+    categoria = dados.get("categoria")
+    autor = dados.get("autor")
+    image_url = dados.get("imagem_url")
+    
+    if not titulo or not categoria or not autor or not image_url:
+        return jsonify ({"erro": "Todos os campos devem ser obrigatorios"}), 400
+    
+    with sqlite3.connect("database.db") as conn:
+
+        conn.execute("""f
+                    INSERT INTO LIVROS (titulo, categoria, autor, image_url ) values ({titulo}, {categoria}, {autor}, {image_url})
+        """
+        
+    )
     
 
+@app.route("/livros", method=["GET"])
+def buscarLivro():
+    
+    with sqlite3.connect("database.db") as conn:
 
-@app.route("/livros" method=["POST"])
-def livro
-
+        livros = conn.execute("""f
+                     SELECT * FROM LIVROS ORDER BY NAME 
+        """       
+    ).fetchall
+        
+    
+    livros_retornados = []
+        
+    for livro in livros:
+        livros_retornados.append({
+             
+                                "id" : livro[0],
+                                "titulo": livro[1],
+                                "cetegoria" : livro[2],
+                                "autor" : livro[3],
+                                "image_url" : livro[4],
+        })    
+       
+    return  jsonify(livros_retornados)
 
 
 
