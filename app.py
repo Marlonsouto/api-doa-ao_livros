@@ -3,7 +3,7 @@ import sqlite3
 from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)  
 
 @app.route("/")
 def primeira_mensagem():
@@ -32,48 +32,45 @@ def doar_livro():
     titulo = dados.get("titulo")
     categoria = dados.get("categoria")
     autor = dados.get("autor")
-    image_url = dados.get("imagem_url")
+    imagem_url = dados.get("imagem_url")
     
-    if not titulo or not categoria or not autor or not image_url:
-        return jsonify ({"erro": "Todos os campos devem ser obrigatorios"}), 400
+    if not titulo or not categoria or not autor or not imagem_url:
+        return jsonify({"erro": "Todos os campos são obrigatórios"}), 400
     
     with sqlite3.connect("database.db") as conn:
-
-        conn.execute("""f
-                    INSERT INTO LIVROS (titulo, categoria, autor, image_url ) values ({titulo}, {categoria}, {autor}, {image_url})
-        """
-    )
-    conn.commit()
+        conn.execute(
+            """
+                INSERT INTO LIVROS (titulo, categoria, autor, imagem_url) 
+                VALUES (?, ?, ?, ?)
+            """,
+            (titulo, categoria, autor, imagem_url)
+        )
+        conn.commit()
     
     return jsonify({"mensagem": "Livro cadastrado com sucesso"}), 201
     
 
 @app.route("/livros", methods=["GET"])
 def buscarLivro():
-    
     with sqlite3.connect("database.db") as conn:
-
-        livros = conn.execute("""f
-                     SELECT * FROM LIVROS ORDER BY NAME 
-        """       
-    ).fetchall
-        
+        livros = conn.execute(
+            """
+                SELECT * FROM LIVROS ORDER BY titulo
+            """
+        ).fetchall()  
     
     livros_retornados = []
         
     for livro in livros:
         livros_retornados.append({
-             
-                                "id" : livro[0],
-                                "titulo": livro[1],
-                                "cetegoria" : livro[2],
-                                "autor" : livro[3],
-                                "image_url" : livro[4],
+            "id": livro[0],
+            "titulo": livro[1],
+            "categoria": livro[2], 
+            "autor": livro[3],
+            "imagem_url": livro[4]  
         })    
        
     return jsonify(livros_retornados)
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
