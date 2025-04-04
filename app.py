@@ -27,6 +27,9 @@ init_db()
 
 @app.route("/doar", methods=["POST"])
 def doar_livro():
+    
+    if (not request.is_json):
+        return jsonify ({"erro": "a solicitaçao deve ser em JSON"},400)
     dados = request.get_json()
     
     titulo = dados.get("titulo")
