@@ -47,7 +47,7 @@ def doar_livro():
         )
         conn.commit()
     
-    return jsonify({"mensagem": "Livro cadastrado com sucesso"}), 201
+    return jsonify({"mensagem": "Livro cadastrado com sucesso"}), 200
     
 
 @app.route("/livros", methods=["GET"])
